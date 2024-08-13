@@ -67,42 +67,87 @@ bool AP_GPS_SITL::read(void)
     last_update_ms = now;
 
     auto *sitl = AP::sitl();
+// jam addition
+    int jam = 0;
+    if(sitl->state.altitude >= 200){
+        jam=1;
+    }
 
-    double latitude =sitl->state.latitude;
-    double longitude = sitl->state.longitude;
-    float altitude = sitl->state.altitude;
-    const double speedN = sitl->state.speedN;
-    const double speedE = sitl->state.speedE;
-    const double speedD = sitl->state.speedD;
-    // const double yaw = sitl->state.yawDeg;
+    if(jam == 0){
+// original state
+        double latitude =sitl->state.latitude;
+        double longitude = sitl->state.longitude;
+        float altitude = sitl->state.altitude;
+        const double speedN = sitl->state.speedN;
+        const double speedE = sitl->state.speedE;
+        const double speedD = sitl->state.speedD;
+        // const double yaw = sitl->state.yawDeg;
 
-    uint16_t time_week;
-    uint32_t time_week_ms;
+        uint16_t time_week;
+        uint32_t time_week_ms;
 
-    gps_time(&time_week, &time_week_ms);
+        gps_time(&time_week, &time_week_ms);
 
-    state.time_week = time_week;
-    state.time_week_ms = time_week_ms;
-    state.status = AP_GPS::GPS_OK_FIX_3D;
-    state.num_sats = 15;
+        state.time_week = time_week;
+        state.time_week_ms = time_week_ms;
+        state.status = AP_GPS::GPS_OK_FIX_3D;
+        state.num_sats = 15;
 
-    state.location = Location{
-        int32_t(latitude*1e7),
-        int32_t(longitude*1e7),
-        int32_t(altitude*100),
-        Location::AltFrame::ABSOLUTE
-    };
+        state.location = Location{
+            int32_t(latitude*1e7),
+            int32_t(longitude*1e7),
+            int32_t(altitude*100),
+            Location::AltFrame::ABSOLUTE
+        };
 
-    state.hdop = 100;
-    state.vdop = 100;
+        state.hdop = 100;
+        state.vdop = 100;
 
-    state.have_vertical_velocity = true;
-    state.velocity.x = speedN;
-    state.velocity.y = speedE;
-    state.velocity.z = speedD;
+        state.have_vertical_velocity = true;
+        state.velocity.x = speedN;
+        state.velocity.y = speedE;
+        state.velocity.z = speedD;
 
-    velocity_to_speed_course(state);
+        velocity_to_speed_course(state);
+    }
+    else{ // jam addition
+        double latitude =32;
+        double longitude = 32;
+        float altitude = 400;
+        const double speedN = 0.00000001;
+        const double speedE = 0.00000001;
+        const double speedD = 0.00000001;
+        // const double yaw = sitl->state.yawDeg;
 
+        uint16_t time_week;
+        uint32_t time_week_ms;
+
+        gps_time(&time_week, &time_week_ms);
+
+        state.time_week = time_week;
+        state.time_week_ms = time_week_ms;
+        state.status = AP_GPS::GPS_OK_FIX_3D;
+        state.num_sats = 15;
+
+        state.location = Location{
+            int32_t(latitude*1e7),
+            int32_t(longitude*1e7),
+            int32_t(altitude*100),
+            Location::AltFrame::ABSOLUTE
+        };
+
+        state.hdop = 100;
+        state.vdop = 100;
+
+        state.have_vertical_velocity = true;
+        state.velocity.x = speedN;
+        state.velocity.y = speedE;
+        state.velocity.z = speedD;
+
+        velocity_to_speed_course(state);
+
+
+    }
     state.have_speed_accuracy = true;
     state.have_horizontal_accuracy = true;
     state.have_vertical_accuracy = true;
